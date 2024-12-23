@@ -15,6 +15,7 @@ export default function HomeContent() {
   const popularDomains = ["com", "net", "in", "io", "online", "org", "biz", "live", "store", "co"];
   const [domainInput, setDomainInput] = useState("");
   const [selectedTlds, setSelectedTlds] = useState<string[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [results, setResults] = useState<any>(null);  // Store the API response here
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +42,7 @@ export default function HomeContent() {
 
       const response = await axios.get(apiUrl);
       setResults(response.data); // Update the state with the API response
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error fetching domain suggestions:", error.message);
       alert("Failed to fetch domain suggestions. Please try again.");

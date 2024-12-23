@@ -42,7 +42,11 @@ export async function GET(request: NextRequest) {
 
     // Return the data from the Domain Availability API
     return NextResponse.json({ data: response.data });
-  } catch (error: any) {
+ 
+    
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error:any) {
+    
     console.error("Error fetching domain availability:", error.message);
     return NextResponse.json(
       { error: error.message || "An unknown error occurred" },
