@@ -31,6 +31,7 @@ const SignIn = () => {
         const errorData = await response.json();
         setError(errorData.message || 'Sign-in failed');
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError('An error occurred. Please try again.');
     }
