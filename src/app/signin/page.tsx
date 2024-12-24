@@ -1,22 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { login } from '../../store/authSlice';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { login } from '@/store/authSlice';
 
 const SignIn = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+
   const [error, setError] = useState('');
-  const dispatch = useDispatch();
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      const response = await fetch('/api/auth/signin', {
+      const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL; // Get base URL from the environment variable
+
+      const response = await fetch(`${baseURL}/api/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -25,49 +28,83 @@ const SignIn = () => {
 
       if (response.ok) {
         const data = await response.json();
+
+        setMessage(data.message);
+        setError('');
+   
         dispatch(login({ id: data.user.id, username: data.user.username }));
-        router.push('/dashboard');
+        router.push('/');
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Sign-in failed');
+        setMessage('');
+        setError(errorData.message || 'Signup failed');
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    } catch (err:any) {
+      setError(err.message);
     }
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-2xl mb-4">Sign In</h1>
-      <form onSubmit={handleSubmit} className="w-full max-w-sm">
-        <div className="mb-4">
-          <label className="block text-gray-700">Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="border rounded w-full py-2 px-3"
-            required
-          />
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+        <h1 className="text-3xl font-semibold text-center text-gray-700">Sign Up</h1>
+        <form onSubmit={handleSignIn} className="space-y-4">
+          
+
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-600">Username:</label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full p-3 mt-2 text-lg border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+              placeholder="Enter your username"
+            />
+          </div>
+
+       
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-600">Password:</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full p-3 mt-2 text-lg border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+              placeholder="Enter your password"
+            />
+          </div>
+
+       
+
+          <button type="submit" className="w-full py-3 text-lg font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-300">
+            Sign In
+          </button>
+        </form>
+
+        {message && <p className="mt-4 text-center text-green-600">{message}</p>}
+        {error && <p className="mt-4 text-center text-red-600">{error}</p>}
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            Don&apos;t have an account?{' '}
+            <button
+              className="text-indigo-600 hover:text-indigo-700"
+              onClick={() => router.push('/signup')}
+            >
+              Sign In
+            </button>
+          </p>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border rounded w-full py-2 px-3"
-            required
-          />
-        </div>
-        <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-          Sign In
-        </button>
-      </form>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      </div>
     </div>
   );
 };
 
 export default SignIn;
+

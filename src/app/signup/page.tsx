@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { login } from '@/store/authSlice';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -11,28 +13,42 @@ export default function Signup() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  
+
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, username, displayname, password, phone }),
-    });
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL; // Get base URL from the environment variable
+      const response = await fetch(`${baseURL}/api/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, username, displayname, password, phone }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-      setMessage(data.message);
-      setError('');
-    } else {
+      if (response.ok) {
+        // Store the user in Redux
+        dispatch(login({ id: data.user.id, username: data.user.username }));
+
+        setMessage(data.message);
+        setError('');
+
+        // Redirect to the dashboard
+        router.push('/');
+      } else {
+        setMessage('');
+        setError(data.message || 'Signup failed');
+      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
       setMessage('');
-      setError(data.message || 'Signup failed');
+      setError('An error occurred. Please try again.');
     }
   };
 

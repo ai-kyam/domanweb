@@ -52,7 +52,7 @@ export default function HomeContent() {
   };
 
   return (
-    <div className="bg-slate-200 text-black py-5 w-screen px-6 relative">
+    <div className="bg-slate-200 h-screen text-black py-5 w-screen px-6 relative">
       <PlaceholdersAndVanishInput
         placeholders={placeholders}
         onChange={handleInputChange}
